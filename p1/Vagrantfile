@@ -1,21 +1,36 @@
 Vagrant.configure(2) do |config|
+	# Image used for the VM
 	config.vm.box = "debian/bookworm64"
+	# SSH boot timeout, this setting is usefull when you have limited resources (like 512MB and 1CPU for example :))
+	# By default the timeout is 60s if i remember correctly.
 	config.vm.boot_timeout = 300
-	# config.vm.box_url = REDACTED
+
+	# By using config.vm.define we create a new VM, the ugly pipe control pipe is like an alias for the
+	# VM, you can actually name it as you which as long as you also modify his calls.
 	config.vm.define "tclaerebS" do |control|
 		control.vm.hostname = "tclaerebS"
 		control.vm.network "private_network", ip: "192.168.56.110"
+		# VM configuration, here you select your provider and configure the resources your VM will use.
+		# The subject strongly recommend to limit to 512MB memory and 1 CPU but it is very slow
+		# and pretty irrelevant to work With such a small VM.
+		# 2048MB memory and 2 CPU is a good start to avoid freeze and latency.
 		control.vm.provider "virtualbox" do |v|
 			v.name = "tclaerebS"
 			v.memory = 2048
 			v.cpus = 2
 			v.customize [
 				"modifyvm", :id,
+				# I strongly recommend to set this for good habits, it limit how much CPU the VM is going to
+				# use on your HOST machine. You should not have any issue if you dont set this but think of making
+				# clean architecture and avoid futur major issues by doing this.
 				"--cpuexecutioncap", "80"
 			]
 		end
-		# config.vm.provision :shell, :inline => SHELL
-		# SHELL
+		# control.vm.provision allow you to write shell scripts that allow you to configure your VM by installing
+		# all the dependencies you need.
+		# there is different way to provide provision, here i use a file but you can use inline to execute simple command.
+		# (example: control.vm.provision "shell", inline: "echo Hello World")
+		# You can also define multiple provision by reusing usigin control.vm.provision.
 		control.vm.provision "shell", path: "./scripts/server.sh"
 	end
 	config.vm.define "tclaerebSW" do |control|
@@ -30,8 +45,6 @@ Vagrant.configure(2) do |config|
 				"--cpuexecutioncap", "80",
 			]
 		end
-		# config.vm.provision "shell", inline: <<-SHELL
-		# SHELL
 		control.vm.provision "shell", path: "./scripts/agent.sh"
 	end
 end
