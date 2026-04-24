@@ -6,7 +6,7 @@ Vagrant.configure(2) do |config|
 	config.vm.boot_timeout = 300
 
 	# By using config.vm.define we create a new VM, the ugly pipe control pipe is like an alias for the
-	# VM, you can actually name it as you which as long as you also modify his calls.
+	# VM, you can actually name it as you wish as long as you also modify his calls.
 	config.vm.define "tclaerebS" do |control|
 		control.vm.hostname = "tclaerebS"
 		control.vm.network "private_network", ip: "192.168.56.110"
@@ -26,11 +26,10 @@ Vagrant.configure(2) do |config|
 				"--cpuexecutioncap", "80"
 			]
 		end
-		# control.vm.provision allow you to write shell scripts that allow you to configure your VM by installing
-		# all the dependencies you need.
+		# control.vm.provision allow you to write shell scripts used to configure your VM.
 		# there is different way to provide provision, here i use a file but you can use inline to execute simple command.
 		# (example: control.vm.provision "shell", inline: "echo Hello World")
-		# You can also define multiple provision by reusing usigin control.vm.provision.
+		# You can also define multiple provision by reusing control.vm.provision.
 		control.vm.provision "shell", path: "./scripts/server.sh"
 	end
 	config.vm.define "tclaerebSW" do |control|
