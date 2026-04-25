@@ -1,3 +1,5 @@
+# Find more information about deployment here:
+# https://kubernetes.io/docs/reference/kubernetes-api/workload-resources/deployment-v1/
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -5,7 +7,7 @@ metadata:
   labels:
     app: app3
 spec:
-  replicas: 1
+  replicas: 3
   selector:
     matchLabels:
       app: app3
@@ -25,4 +27,4 @@ spec:
       volumes:
         - name: html-volume
           configMap:
-            name: app3-html
+            name: app3-resource
