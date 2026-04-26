@@ -1,13 +1,16 @@
 Vagrant.configure(2) do |config|
+	vm_name = "#{ENV['USER']}S"
+	vm_ip = "192.168.56.110"
+
 	config.vm.box = "debian/bookworm64"
 	config.vm.boot_timeout = 300
 
-	config.vm.define "tclaerebS" do |control|
-		control.vm.hostname = "tclaerebS"
-		control.vm.network "private_network", ip: "192.168.56.110"
+	config.vm.define vm_name do |control|
+		control.vm.hostname = vm_name
+		control.vm.network "private_network", ip: vm_ip
 
 		control.vm.provider "virtualbox" do |v|
-			v.name = "tclaerebS"
+			v.name = vm_name
 			v.memory = 2048
 			v.cpus = 2
 			v.customize [
@@ -16,6 +19,6 @@ Vagrant.configure(2) do |config|
 			]
 		end
 
-		control.vm.provision "shell", path: "./scripts/server.sh"
+		control.vm.provision "shell", path: "./scripts/server.sh", args: [vm_ip]
 	end
 end

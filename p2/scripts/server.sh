@@ -6,7 +6,7 @@ apt-get update
 
 apt-get install curl -y
 
-curl -sfL https://get.k3s.io | INSTALL_K3S_EXEC="server --bind-address=192.168.56.110 --node-external-ip=192.168.56.110 --flannel-iface=eth1" sh -
+curl -sfL https://get.k3s.io | INSTALL_K3S_EXEC="server --bind-address=$1 --node-external-ip=$1 --flannel-iface=eth1" sh -
 
 # From here we are using all the yaml files we have in the confs folder to create our applications.
 # Here i create a config map storing my html file. A config map is primary used to decouple configuration from the container image,
