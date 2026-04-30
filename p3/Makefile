@@ -4,7 +4,7 @@ PRIVATE_IP=$(shell ip a show eth1 | grep -Eo 'inet ([0-9]*\.){3}[0-9]*' | grep -
 all: install clean run-argocd
 
 clean:
-	@rm kubectl kubectl.sha256
+	@rm -f kubectl kubectl.sha256
 
 install:
 	@sudo sh ./scripts/install.sh $(CLUSTER_NAME)
