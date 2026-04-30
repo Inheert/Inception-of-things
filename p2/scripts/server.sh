@@ -9,8 +9,7 @@ apt-get install curl -y
 curl -sfL https://get.k3s.io | INSTALL_K3S_EXEC="server --bind-address=$1 --node-external-ip=$1 --flannel-iface=eth1" sh -
 
 # From here we are using all the yaml files we have in the confs folder to create our applications.
-# Here i create a config map storing my html file. A config map is primary used to decouple configuration from the container image,
-# without that if i want to change the HTML file i'll have  to rebuild the image.
+# Here i create a config map storing my html file. A config map is primary used to decouple configuration from the container image.
 # Config map should only be used to store non sensitive data, never store secrets keys or even passwords in it.
 kubectl create configmap app1-resource --from-file="/vagrant/confs/app1/index.html" --dry-run=client -o yaml | kubectl apply -f -
 

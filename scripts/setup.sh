@@ -2,8 +2,8 @@
 
 exec > /var/log/provision.log 2>&1
 
-apt update
-apt install -y curl gpg wget lsb-release build-essential dkms linux-headers-$(uname -r) -y
+apt-get update
+apt-get install -y curl gpg wget lsb-release build-essential dkms linux-headers-$(uname -r) -y
 
 # Vagrant (Hashicorp apt repo)
 wget -O /tmp/hashicorp.gpg https://apt.releases.hashicorp.com/gpg
@@ -17,7 +17,7 @@ gpg --batch --yes --dearmor -o /usr/share/keyrings/virtualbox.gpg /tmp/virtualbo
 rm /tmp/virtualbox.asc
 echo "deb [arch=amd64 signed-by=/usr/share/keyrings/virtualbox.gpg] https://download.virtualbox.org/virtualbox/debian $(lsb_release -cs) contrib" | tee /etc/apt/sources.list.d/virtualbox.list
 
-apt update
-apt install -y vagrant virtualbox-7.1 -y
+apt-get update
+apt-get install -y vagrant virtualbox-7.1 -y
 
 /sbin/vboxconfig
