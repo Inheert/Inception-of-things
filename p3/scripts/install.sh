@@ -92,7 +92,7 @@ fi
 if ! kubectl get namespace dev > /dev/null 2>&1; then
 	kubectl create namespace dev
 	kubectl config set-context --current --namespace=dev
-	...
+	# ...
 	kubectl config set-context --current --namespace=default
 else
 	echo "dev namespace is already configured."
