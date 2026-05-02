@@ -1,3 +1,5 @@
 ***/.vagrant
 ***/*.tmp
 ***/.claude
+***/kubectl
+***/kubectl.sha256
