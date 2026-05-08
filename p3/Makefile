@@ -9,6 +9,10 @@ clean:
 install:
 	@sudo sh ./scripts/install.sh $(CLUSTER_NAME)
 
-run-argocd:
-	@sudo kubectl port-forward svc/argocd-server -n argocd 8001:443 --address $(PRIVATE_IP)
+test: run-argocd foo
 
+run-argocd:
+	@sudo kubectl port-forward svc/argocd-server -n argocd 8012:443 --address $(PRIVATE_IP)
+
+foo:
+	@sudo kubectl config get-contexts

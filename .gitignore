@@ -1,5 +1,6 @@
-***/.vagrant
-***/*.tmp
-***/.claude
-***/kubectl
-***/kubectl.sha256
+.vagrant
+*.tmp
+.claude
+kubectl
+kubectl.sha256
+*.log

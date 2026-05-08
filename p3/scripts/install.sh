@@ -8,7 +8,7 @@ check_if_package_exist(){
 	return 1
 }
 
-apt-get update > /dev/null
+apt-get update
 
 # This script is used to install all the necessary dependencies for the VM and configure them.
 # Once its done your VM will have a ready to use k3d ecosystem with 2 namespaces, one for argocd
@@ -83,7 +83,7 @@ if ! kubectl get namespace argocd > /dev/null 2>&1; then
 	kubectl create namespace argocd
 	kubectl config set-context --current --namespace=argocd
 	kubectl apply -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml --server-side
-	kubectl wait --for=condition=Ready pods --all --timeout=120s
+	kubectl wait --for=condition=Ready pods --all --timeout=300s
 	kubectl config set-context --current --namespace=default
 else
 	echo "argocd namespace is already configured."
