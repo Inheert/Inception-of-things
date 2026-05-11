@@ -1,0 +1,8 @@
+# Show app status
+kubectl get app my-app -n argocd
+
+# Show all pods in a namespace
+kubectl get pods -n dev
+
+# manually sync argocd
+argocd app sync my-app --grpc-web
