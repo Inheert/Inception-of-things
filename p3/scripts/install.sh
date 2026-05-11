@@ -70,6 +70,14 @@ else
 	echo "kubectl is already installed."
 fi
 
+if ! check_if_package_exist "argocd"; then
+	curl -sSL -o argocd-linux-amd64 https://github.com/argoproj/argo-cd/releases/latest/download/argocd-linux-amd64
+	sudo install -m 555 argocd-linux-amd64 /usr/local/bin/argocd
+	rm argocd-linux-amd64
+else
+	echo "argocd already installed."
+fi
+
 # Cluster creation
 if [ -z "$1" ]; then
 	echo "First argument is missing (cluster name)."
@@ -81,19 +89,14 @@ fi
 # argocd configuration
 if ! kubectl get namespace argocd > /dev/null 2>&1; then
 	kubectl create namespace argocd
-	kubectl config set-context --current --namespace=argocd
-	kubectl apply -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml --server-side
-	kubectl wait --for=condition=Ready pods --all --timeout=300s
-	kubectl config set-context --current --namespace=default
 else
 	echo "argocd namespace is already configured."
 fi
 
 if ! kubectl get namespace dev > /dev/null 2>&1; then
 	kubectl create namespace dev
-	kubectl config set-context --current --namespace=dev
-	# ...
-	kubectl config set-context --current --namespace=default
 else
 	echo "dev namespace is already configured."
 fi
+
+kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml --server-side

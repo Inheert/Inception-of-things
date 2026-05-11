@@ -16,4 +16,4 @@ spec:
       - name: my-app
         image: inheert/my-app
         ports:
-        - containerPort: 80   
+        - containerPort: 80

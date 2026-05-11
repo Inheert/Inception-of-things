@@ -11,6 +11,9 @@ install:
 
 test: run-argocd foo
 
+run:
+	@sudo sh ./scripts/run.sh
+
 run-argocd:
 	@sudo kubectl port-forward svc/argocd-server -n argocd 8012:443 --address $(PRIVATE_IP)
 
