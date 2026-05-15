@@ -17,5 +17,3 @@ echo "Link to repo"
 argocd app create my-app --repo "https://github.com/Inheert/tclaereb.git" \
 	--path app/ --dest-namespace "dev" --dest-server "https://kubernetes.default.svc" \
 	--sync-policy "automated" --upsert --grpc-web --self-heal --auto-prune
-
-sh ./scripts/test.sh wokgoewkg ls

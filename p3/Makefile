@@ -7,12 +7,12 @@ clean:
 	@rm -f kubectl kubectl.sha256
 
 install:
-	@sudo sh ./scripts/install.sh $(CLUSTER_NAME)
+	@sudo ./scripts/display.sh ./scripts/asciiart/installer.txt ./scripts/install.sh $(CLUSTER_NAME)
 
 test: run-argocd foo
 
 run:
-	@sudo sh ./scripts/run.sh
+	@sudo ./scripts/display.sh ./scripts/asciiart/run.txt ./scripts/run.sh
 
 run-argocd:
 	@sudo kubectl port-forward svc/argocd-server -n argocd 8012:443 --address $(PRIVATE_IP)
