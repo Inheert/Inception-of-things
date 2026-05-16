@@ -108,4 +108,4 @@ fi
 
 kubectl wait --for=condition=Ready nodes --all --timeout=120s
 kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/v3.4.2/manifests/install.yaml --server-side
-kubectl apply -n ./confs/argocd/ingress.yaml
+kubectl apply -f ./confs/argocd/ingress.yaml
