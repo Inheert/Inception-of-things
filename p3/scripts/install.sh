@@ -60,9 +60,15 @@ else
 	echo "k3d is already installed."
 fi
 
+ARCH=$(uname -m)
+case $ARCH in
+	x86_64) ARCH="amd64" ;;
+	aarch64|arm64) ARCH="arm64" ;;
+esac
+
 if ! check_if_package_exist "kubectl"; then
-	curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
-	curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl.sha256"
+	curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/${ARCH}/kubectl"
+	curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/${ARCH}/kubectl.sha256"
 	# Here we check the signature
 	echo "$(cat kubectl.sha256)  kubectl" | sha256sum --check
 	install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
@@ -71,9 +77,9 @@ else
 fi
 
 if ! check_if_package_exist "argocd"; then
-	curl -sSL -o argocd-linux-amd64 https://github.com/argoproj/argo-cd/releases/latest/download/argocd-linux-amd64
-	sudo install -m 555 argocd-linux-amd64 /usr/local/bin/argocd
-	rm argocd-linux-amd64
+	curl -sSL -o argocd-linux-${ARCH} https://github.com/argoproj/argo-cd/releases/download/v3.4.2/argocd-linux-${ARCH}
+	sudo install -m 555 argocd-linux-${ARCH} /usr/local/bin/argocd
+	rm argocd-linux-${ARCH}
 else
 	echo "argocd already installed."
 fi
@@ -84,6 +90,7 @@ if [ -z "$1" ]; then
 	exit 1
 else
 	k3d cluster create $1 -p "80:80@loadbalancer" --servers 1 --agents 1
+		# --k3s-arg "--resolv-conf=/etc/resolv.conf@server:*,agent:*"
 fi
 
 # argocd configuration
@@ -99,4 +106,6 @@ else
 	echo "dev namespace is already configured."
 fi
 
-kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml --server-side
+kubectl wait --for=condition=Ready nodes --all --timeout=120s
+kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/v3.4.2/manifests/install.yaml --server-side
+kubectl apply -n ./confs/argocd/ingress.yaml

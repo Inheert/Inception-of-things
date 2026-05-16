@@ -6,3 +6,9 @@ kubectl get pods -n dev
 
 # manually sync argocd
 argocd app sync my-app --grpc-web
+
+sudo kubectl scale deployment -n dev --replicas=0 --all
+
+sudo kubectl delete application app-name -n argocd
+
+sudo k3d cluster stop/delete/start cluster-name

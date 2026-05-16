@@ -1,6 +1,10 @@
 #!/bin/sh
 
-kill $(lsof -i tcp:4852 | tail -n +2 | awk '{print $2}')
+if kill $(lsof -i tcp:4852 | tail -n +2 | awk '{print $2}') > /dev/null 2>&1; then
+	echo "last process killd."
+else
+	echo "no process to kill."
+fi
 
 sleep 1
 kubectl wait --for=condition=Ready pods --all -n argocd --timeout=300s

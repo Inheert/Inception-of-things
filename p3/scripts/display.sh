@@ -14,11 +14,11 @@ PRODUCER_ARGS=("${@:3}")    # all arguments after $2 are forwarded to the produc
 
 # Box position (1-indexed terminal rows/columns)
 BOX_X="${BOX_X:-1}"
-BOX_Y="${BOX_Y:-10}"
+BOX_Y="${BOX_Y:-9}"
 
 # Box dimensions (inner area — does not include the border)
 BOX_W="${BOX_W:-75}"       # inner width  (characters per line)
-BOX_H="${BOX_H:-10}"       # inner height (number of content lines)
+BOX_H="${BOX_H:-20}"       # inner height (number of content lines)
 
 # Title shown centered in the top border (set to "" to disable)
 BOX_TITLE="${BOX_TITLE:- Status }"
@@ -168,6 +168,7 @@ main() {
 
     move $(( BOX_Y + BOX_H + 3 )) 1
     tput cnorm 2>/dev/null
+    echo
 }
 
 main
