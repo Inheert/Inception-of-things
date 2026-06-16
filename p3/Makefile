@@ -5,19 +5,19 @@ all: install run
 
 clean:
 	@rm -f logs/display.log
-	@sudo ./scripts/display.sh ./scripts/asciiart/cleaning.txt ./scripts/cleaning.sh $(CLUSTER_NAME)
+	@sudo ./scripts/cleaning.sh $(CLUSTER_NAME)
 
 fclean: clean
 
 install:
-	@sudo ./scripts/display.sh ./scripts/asciiart/installer.txt ./scripts/install.sh $(CLUSTER_NAME)
+	@sudo ./scripts/install.sh $(CLUSTER_NAME)
 	@rm -f kubectl kubectl.sha256
 
 run:
-	@sudo ./scripts/display.sh ./scripts/asciiart/run.txt ./scripts/run.sh
+	@sudo ./scripts/run.sh
 
 get-health:
-	@sudo ./scripts/display.sh ./scripts/asciiart/health.txt ./scripts/health.sh
+	@sudo ./scripts/health.sh
 
 watch-health:
-	@while true; do sudo ./scripts/display.sh ./scripts/asciiart/health.txt ./scripts/health.sh; sleep 2; done
+	@while true; do sudo ./scripts/health.sh; sleep 2; done
