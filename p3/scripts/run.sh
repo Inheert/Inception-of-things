@@ -8,7 +8,7 @@ fi
 if kill $(lsof -i tcp:4852 | tail -n +2 | awk '{print $2}') > /dev/null 2>&1; then
 	echo "ArgoCD server stopped."
 else
-	echo "no ArgoCD server process found."
+	echo "No ArgoCD server process found."
 fi
 
 sleep 1
@@ -22,7 +22,7 @@ kubectl port-forward svc/argocd-server 4852:443 &>/dev/null &
 sleep 2
 argocd login localhost:4852 --username admin --password $ARGOCD_PASSWORD --insecure --grpc-web
 
-echo "Link to repo"
 argocd app create my-app --repo "https://github.com/Inheert/tclaereb.git" \
 	--path app/ --dest-namespace "dev" --dest-server "https://kubernetes.default.svc" \
 	--sync-policy "automated" --upsert --grpc-web --self-heal --auto-prune
+echo "ArgoCD app created."

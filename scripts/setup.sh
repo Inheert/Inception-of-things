@@ -3,7 +3,7 @@
 exec > /var/log/provision.log 2>&1
 
 apt-get update
-apt-get install -y curl gpg wget lsb-release build-essential dkms linux-headers-$(uname -r) -y
+apt-get install -y curl jq gpg wget lsb-release build-essential dkms linux-headers-$(uname -r) -y
 
 # Vagrant (Hashicorp apt repo)
 wget -O /tmp/hashicorp.gpg https://apt.releases.hashicorp.com/gpg
