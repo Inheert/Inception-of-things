@@ -14,10 +14,10 @@ install:
 	@rm -f kubectl kubectl.sha256
 
 run:
-	@sudo ./scripts/run.sh
+	@sudo ./scripts/run.sh $(CLUSTER_NAME)
 
 get-health:
 	@sudo ./scripts/health.sh
 
 watch-health:
-	@while true; do sudo ./scripts/health.sh; sleep 2; done
+	@while true; do clear; sudo ./scripts/health.sh; sleep 2; done

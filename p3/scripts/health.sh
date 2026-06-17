@@ -28,3 +28,5 @@ echo ""
 
 kubectl get application my-app -n argocd -o jsonpath='{.status.operationState.finishedAt}' \
     | awk '{printf "  Last time sync: %s", $1}'
+
+echo

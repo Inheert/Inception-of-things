@@ -1,9 +1,14 @@
 #!/bin/sh
 
+if ! k3d cluster get $1 > /dev/null 2>&1; then
+	echo "[FATAL] The cluster $1 doesn't exist, pleas re-run the install."
+	exit 1
+fi
+
 if kill $(lsof -i tcp:4852 | tail -n +2 | awk '{print $2}') > /dev/null 2>&1; then
-	echo "last process killd."
+	echo "ArgoCD server stopped."
 else
-	echo "no process to kill."
+	echo "no ArgoCD server process found."
 fi
 
 sleep 1

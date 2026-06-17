@@ -69,9 +69,6 @@ esac
 if ! check_if_package_exist "kubectl"; then
 	curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/${ARCH}/kubectl"
 	curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/${ARCH}/kubectl.sha256"
-	# Here we check the signature
-	echo "$(cat kubectl.sha256)  kubectl" | sha256sum --check
-	install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
 else
 	echo "kubectl is already installed."
 fi
@@ -84,13 +81,15 @@ else
 	echo "argocd already installed."
 fi
 
+# From here we are going to initialize our cluster and the 2 required namespaces (argocd, dev)
+# and install argocd in its namespace.
+
 # Cluster creation
 if [ -z "$1" ]; then
 	echo "First argument is missing (cluster name)."
 	exit 1
 else
 	k3d cluster create $1 -p "80:80@loadbalancer" --servers 1 --agents 1
-		# --k3s-arg "--resolv-conf=/etc/resolv.conf@server:*,agent:*"
 fi
 
 # argocd configuration
