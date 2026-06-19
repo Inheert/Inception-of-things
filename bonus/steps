@@ -1,0 +1,76 @@
+Bonus: GitLab on Kubernetes
+
+  Step 1 — Assess your resources
+
+  GitLab is resource-hungry (~4GB RAM minimum). Before anything, check what your
+  machine/VM can provide and decide whether you'll deploy the full chart or a
+  minimal configuration. This decision will shape everything else.
+
+  Step 2 — Plan your network topology
+
+  Your current k3d cluster only exposes port 80. GitLab will need its own
+  ingress entry point. Think about:
+  - Does your cluster need additional port mappings at creation time?
+  - What hostname will GitLab be reachable at (e.g. gitlab.local)?
+  - How will pods inside the cluster reach that hostname? (DNS resolution is the
+  key problem here)
+
+  Step 3 — Create the gitlab namespace
+
+  Straightforward, but do it early — every resource you create will live there.
+
+  Step 4 — Deploy GitLab with Helm
+
+  Look up the official GitLab Helm chart (gitlab/gitlab). For a local setup
+  you'll need to override several values:
+  - Disable cert-manager and use a simpler TLS approach (or plain HTTP)
+  - Set the global.hosts.domain to your chosen hostname
+  - Tune down resource requests/limits so it actually fits your cluster
+  - Disable cloud-specific components you don't need (Registry is optional,
+  Runner is optional)
+
+  This step requires the most iteration — GitLab has dozens of sub-charts.
+
+  Step 5 — Make GitLab reachable from your host and from inside the cluster
+
+  Two separate problems:
+  - From your host browser → ingress + /etc/hosts entry
+  - From ArgoCD pod inside the cluster → CoreDNS needs to resolve the same
+  hostname to the right service
+
+  Look into how k3d handles custom DNS resolution inside the cluster.
+
+  Step 6 — Seed GitLab with your app content
+
+  Retrieve the initial root password (it's in a Kubernetes secret). Then create
+  a group, a project, and push the content that currently lives in your GitHub
+  repo (Inheert/tclaereb) to your local GitLab.
+
+  Step 7 — Reconfigure ArgoCD to use your GitLab repo
+
+  ArgoCD needs to:
+  1. Trust your GitLab instance (self-signed cert or HTTP — configure this in
+  ArgoCD's repository settings)
+  2. Have credentials if the repo is private
+  3. Point my-app at the new GitLab repo URL instead of the GitHub one
+
+  Step 8 — Update your bonus scripts
+
+  Your run.sh currently hardcodes the GitHub URL. The bonus version should use your local
+  GitLab URL instead. Also update install.sh to orchestrate the full setup: cluster
+  creation, ArgoCD, and GitLab.
+
+  Step 9 — Validate the full flow end-to-end
+
+  The real test: push a change to your local GitLab, watch ArgoCD detect and sync it, verify
+  the app deploys in the dev namespace. That proves the whole chain works.
+
+  ---
+  The main pitfalls to anticipate:
+  - CoreDNS custom entries for your GitLab hostname (this trips most people up)
+  - GitLab chart resource requests vs. available cluster capacity
+  - ArgoCD trusting a self-signed or HTTP GitLab (check ArgoCD's
+  --insecure-skip-server-verification equivalent for repos)
+
+  Start with Step 2 — the network planning decision will determine whether you need to
+  recreate the cluster.

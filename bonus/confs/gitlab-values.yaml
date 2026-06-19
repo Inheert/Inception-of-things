@@ -1,0 +1,50 @@
+global:
+  hosts:
+    domain: localhost
+    https: false
+  ingress:
+    configureCertmanager: false
+    tls:
+      enabled: true
+
+certmanager:
+  installCRDs: false
+
+certmanager-issuer:
+  email: theoclaereboudt@gmail.com
+
+nginx-ingress:
+  enabled: false
+
+prometheus:
+  enabled: false
+
+gitlab-runner:
+  enabled: false
+
+registry:
+  enabled: false
+
+gitlab:
+  webservice:
+    minReplicas: 1
+    maxReplicas: 1
+    resources:
+      requests:
+        cpu: 100M
+        memory: 900M
+  sidekiq:
+    resources:
+      requests:
+        cpu: 50M
+        memory: 625M
+  gitaly:
+    resources:
+      requests:
+        cpu: 50M
+        memory: 200M
+
+minio:
+  resources:
+    requests:
+      memory: 128Mi

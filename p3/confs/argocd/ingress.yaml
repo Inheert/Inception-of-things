@@ -8,7 +8,8 @@ metadata:
     ingress.kubernetes.io/ssl-redirect: "false"
 spec:
   rules:
-  - http:
+  - host: argocd-server.argocd.svc.cluster.local
+    http:
       paths:
       - path: /argocd
         pathType: Prefix

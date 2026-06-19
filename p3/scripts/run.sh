@@ -18,7 +18,7 @@ ARGOCD_PASSWORD=$(kubectl -n argocd get secret argocd-initial-admin-secret -o js
 
 echo "port forwarding"
 kubectl config set-context --current --namespace=argocd
-kubectl port-forward svc/argocd-server 4852:443 &>/dev/null &
+kubectl port-forward svc/argocd-server 4852:443  >/dev/null 2>&1 &
 sleep 2
 argocd login localhost:4852 --username admin --password $ARGOCD_PASSWORD --insecure --grpc-web
 

@@ -69,6 +69,7 @@ esac
 if ! check_if_package_exist "kubectl"; then
 	curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/${ARCH}/kubectl"
 	curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/${ARCH}/kubectl.sha256"
+	install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
 else
 	echo "kubectl is already installed."
 fi
@@ -96,13 +97,13 @@ fi
 if ! kubectl get namespace argocd > /dev/null 2>&1; then
 	kubectl create namespace argocd
 else
-	echo "argocd namespace is already configured."
+	echo "(argocd) Namespace is already configured."
 fi
 
 if ! kubectl get namespace dev > /dev/null 2>&1; then
 	kubectl create namespace dev
 else
-	echo "dev namespace is already configured."
+	echo "(dev) Namespace is already configured."
 fi
 
 kubectl wait --for=condition=Ready nodes --all --timeout=120s
