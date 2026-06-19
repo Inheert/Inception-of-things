@@ -28,6 +28,22 @@ helm repo add gitlab https://charts.gitlab.io/
 helm repo add bitnami https://charts.bitnami.com/bitnami
 helm repo update
 # helm search repo gitlab
-helm install redis bitnami/redis -n gitlab --set auth.enabled=false
-helm install postgresql bitnami/postgresql -n gitlab
-helm install gitlab gitlab/gitlab -n gitlab --skip-crds -f ./confs/gitlab-values.yaml
+
+if ! helm status redis -n gitlab > /dev/null 2>&1; then
+	helm install redis bitnami/redis -n gitlab --set auth.enabled=false --version 27.0.10
+else
+	echo "(gitlab) Redis chart already installed."
+fi
+
+if ! helm status postgresql -n gitlab > /dev/null 2>&1; then
+	helm install postgresql bitnami/postgresql -n gitlab --version 18.7.6
+else
+	echo "(gitlab) Postgresql chart already installed."
+fi
+
+if ! helm status gitlab -n gitlab > /dev/null 2>&1; then
+	helm install gitlab gitlab/gitlab -n gitlab --skip-crds -f ./confs/gitlab-values.yaml
+else
+	echo "(gitlab) Gitlab chart is already installed."
+fi
+

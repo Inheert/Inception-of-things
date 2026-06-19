@@ -1,4 +1,6 @@
 global:
+  gatewayApi:
+    enabled: false
   hosts:
     domain: localhost
     https: false
@@ -6,9 +8,22 @@ global:
     configureCertmanager: false
     tls:
       enabled: true
+  redis:
+    host: redis-master.gitlab.svc.cluster.local
+  psql:
+    host: postgresql.gitlab.svc.cluster.local
+    password:
+      secret: postgresql
+  appConfig:
+    object_store:
+      enabled: true
+      proxy_download: true
+      connection:
+        secret: gitlab-minio-secret
+        key: connection
 
 certmanager:
-  installCRDs: false
+  install: false
 
 certmanager-issuer:
   email: theoclaereboudt@gmail.com
@@ -26,6 +41,8 @@ registry:
   enabled: false
 
 gitlab:
+  toolbox:
+    enabled: false
   webservice:
     minReplicas: 1
     maxReplicas: 1
