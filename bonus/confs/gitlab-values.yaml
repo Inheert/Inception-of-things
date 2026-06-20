@@ -22,8 +22,8 @@ global:
         secret: gitlab-minio-secret
         key: connection
 
-certmanager:
-  install: false
+# certmanager:
+#   install: false
 
 certmanager-issuer:
   email: theoclaereboudt@gmail.com

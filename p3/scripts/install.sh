@@ -90,7 +90,7 @@ if [ -z "$1" ]; then
 	echo "First argument is missing (cluster name)."
 	exit 1
 else
-	k3d cluster create $1 -p "80:80@loadbalancer" --servers 1 --agents 1
+	k3d cluster create $1 -p "192.168.57.100:80:80@loadbalancer" --servers 1 --agents 1
 fi
 
 # argocd configuration
