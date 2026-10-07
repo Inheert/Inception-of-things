@@ -1,0 +1,172 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: app1-com
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: app1.com
+  template:
+    metadata:
+      labels:
+        app: app1.com
+    spec:
+      containers:
+        - name: app1
+          image: nginx:stable
+          ports:
+            - containerPort: 80
+          volumeMounts:
+            - name: app1-page-volume
+              mountPath: /usr/share/nginx/html/index.html
+              subPath: index.html
+      volumes:
+        - name: app1-page-volume
+          configMap:
+            name: app1-page
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: app1-svc
+spec:
+  type: ClusterIP
+  selector:
+    app: app1.com
+  ports:
+    - port: 80
+      targetPort: 80
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: app2-com
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: app2.com
+  template:
+    metadata:
+      labels:
+        app: app2.com
+    spec:
+      containers:
+        - name: app2
+          image: nginx:stable
+          ports:
+            - containerPort: 80
+          volumeMounts:
+            - name: app2-page-volume
+              mountPath: /usr/share/nginx/html/index.html
+              subPath: index.html
+      volumes:
+        - name: app2-page-volume
+          configMap:
+            name: app2-page
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: app2-svc
+spec:
+  type: ClusterIP
+  selector:
+    app: app2.com
+  ports:
+    - port: 80
+      targetPort: 80
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: app3-com
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: app3.com
+  template:
+    metadata:
+      labels:
+        app: app3.com
+    spec:
+      containers:
+        - name: app3
+          image: nginx:stable
+          ports:
+            - containerPort: 80
+          volumeMounts:
+            - name: app3-page-volume
+              mountPath: /usr/share/nginx/html/index.html
+              subPath: index.html
+      volumes:
+        - name: app3-page-volume
+          configMap:
+            name: app3-page
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: app3-svc
+spec:
+  type: ClusterIP
+  selector:
+    app: app3.com
+  ports:
+    - port: 80
+      targetPort: 80
+
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: apps-ingress
+spec:
+  ingressClassName: traefik
+  rules:
+    - http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: app3-svc
+                port:
+                  number: 80
+    - host: app1.com
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: app1-svc
+                port:
+                  number: 80
+    - host: app2.com
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: app2-svc
+                port:
+                  number: 80
+    - host: app3.com
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: app3-svc
+                port:
+                  number: 80

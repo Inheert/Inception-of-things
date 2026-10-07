@@ -1,0 +1,55 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: app1-page
+data:
+  index.html: |
+    <!doctype html>
+    <html>
+      <head>
+        <meta charset="utf-8" />
+        <title>app1.com</title>
+      </head>
+      <body style="font-family: sans-serif; margin: 40px; background: #f6f8ff;">
+        <h1>app1.com</h1>
+        <p>Vous etes sur l application 1.</p>
+      </body>
+    </html>
+
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: app2-page
+data:
+  index.html: |
+    <!doctype html>
+    <html>
+      <head>
+        <meta charset="utf-8" />
+        <title>app2.com</title>
+      </head>
+      <body style="font-family: sans-serif; margin: 40px; background: #fff7f2;">
+        <h1>app2.com</h1>
+        <p>Vous etes sur l application 2 (3 replicas).</p>
+      </body>
+    </html>
+
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: app3-page
+data:
+  index.html: |
+    <!doctype html>
+    <html>
+      <head>
+        <meta charset="utf-8" />
+        <title>app3.com</title>
+      </head>
+      <body style="font-family: sans-serif; margin: 40px; background: #f3fff7;">
+        <h1>app3.com</h1>
+        <p>Vous etes sur l application 3.</p>
+      </body>
+    </html>
