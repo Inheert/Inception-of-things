@@ -12,7 +12,7 @@ if [ "$1" = "hclaudeS" ]; then
 	#	--disable metrics-server
 
 	export K3S_KUBECONFIG_MODE="644"
-	export INSTALL_K3S_EXEC="server --node-external-ip=192.168.56.110 --bind-address=192.168.56.110"
+	export INSTALL_K3S_EXEC="server --node-ip=192.168.56.110 --flannel-iface=enp0s9"
 
 	curl -sfL https://get.k3s.io | sh -
 	if [ $? -ne 0 ]; then
@@ -48,7 +48,7 @@ elif [ "$1" = "hclaudeSW" ]; then
 
 	export K3S_TOKEN_FILE=/vagrant/shared/token
 	export K3S_URL=https://192.168.56.110:6443
-	export INSTALL_K3S_EXEC="agent"
+	export INSTALL_K3S_EXEC="agent --node-ip=192.168.56.111 --flannel-iface=enp0s9"
 
 	curl -sfL https://get.k3s.io | sh -
 

@@ -1,73 +1,111 @@
-#!/bin/bash
-set -e
+#!/bin/sh
 
-# ── Docker ────────────────────────────────────────────────────────────────────
-sudo apt-get update -y
-sudo apt-get install -y ca-certificates curl
+# Simple function to check if a package is already installed or not.
+check_if_package_exist(){
+	if command -v $1 > /dev/null 2>&1; then
+		return 0
+	fi
+	return 1
+}
 
-sudo install -m 0755 -d /etc/apt/keyrings
-sudo curl -fsSL https://download.docker.com/linux/debian/gpg -o /etc/apt/keyrings/docker.asc
-sudo chmod a+r /etc/apt/keyrings/docker.asc
+apt-get update
 
-sudo tee /etc/apt/sources.list.d/docker.sources <<EOF
-Types: deb
-URIs: https://download.docker.com/linux/debian
-Suites: $(. /etc/os-release && echo "$VERSION_CODENAME")
-Components: stable
-Architectures: $(dpkg --print-architecture)
-Signed-By: /etc/apt/keyrings/docker.asc
-EOF
+# This script is used to install all the necessary dependencies for the VM and configure them.
+# Once its done your VM will have a ready to use k3d ecosystem with 2 namespaces, one for argocd
+# and one for the application.
+# Here is the list of the package we are installing:
+# - curl
+# - docker
+# - k3d
+# - kubectl
+# - argocd-cli
 
-sudo apt-get update -y
-sudo apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
-
-sudo usermod -aG docker vagrant
-
-# Enable QEMU emulation for amd64 images if host is arm64
-if [ "$(uname -m)" = "aarch64" ]; then
-  docker run --privileged --rm tonistiigi/binfmt --install amd64
+if ! check_if_package_exist "curl --version"; then
+	apt-get install curl -y
+else
+	echo "curl is already installed."
 fi
 
-# ── k3d ───────────────────────────────────────────────────────────────────────
-curl -s https://raw.githubusercontent.com/k3d-io/k3d/main/install.sh | bash
+# Docker installation check
+if ! check_if_package_exist "docker -v"; then
+	apt remove $(dpkg --get-selections docker.io docker-compose docker-doc podman-docker containerd runc | cut -f1)
 
-# ── kubectl ───────────────────────────────────────────────────────────────────
-ARCH=$(dpkg --print-architecture)
-curl -LO "https://dl.k8s.io/release/$(curl -Ls https://dl.k8s.io/release/stable.txt)/bin/linux/${ARCH}/kubectl"
-sudo install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
-rm kubectl
+	# Add Docker's official GPG key
+	apt update -y
+	apt install ca-certificates curl -y
+	install -m 0755 -d /etc/apt/keyrings
+	curl -fsSL https://download.docker.com/linux/debian/gpg -o /etc/apt/keyrings/docker.asc
+	chmod a+r /etc/apt/keyrings/docker.asc
 
-# ── ArgoCD CLI ────────────────────────────────────────────────────────────────
-ARGOCD_VERSION="v2.14.0"
-curl -sSL -o argocd "https://github.com/argoproj/argo-cd/releases/download/${ARGOCD_VERSION}/argocd-linux-${ARCH}"
-sudo install -m 755 argocd /usr/local/bin/argocd
-rm argocd
+	# Add the repository to Apt sources
+	tee /etc/apt/sources.list.d/docker.sources <<-EOF
+	Types: deb
+	URIs: https://download.docker.com/linux/debian
+	Suites: $(. /etc/os-release && echo "$VERSION_CODENAME")
+	Components: stable
+	Architectures: $(dpkg --print-architecture)
+	Signed-By: /etc/apt/keyrings/docker.asc
+	EOF
 
-# ── Cluster ───────────────────────────────────────────────────────────────────
-k3d cluster create --port "${ARGOCD_PORT}:443@loadbalancer" --port "8888:8888@loadbalancer" --k3s-arg "--disable=traefik@server:0"
+	apt-get update > /dev/null
 
-kubectl create namespace argocd
-kubectl create namespace dev
+	apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin -y
+else
+	echo "Docker is already installed."
+fi
 
-# ── ArgoCD ────────────────────────────────────────────────────────────────────
-kubectl apply -n argocd -f "https://raw.githubusercontent.com/argoproj/argo-cd/${ARGOCD_VERSION}/manifests/install.yaml"
+if ! check_if_package_exist "k3d --version"; then
+	curl -s https://raw.githubusercontent.com/k3d-io/k3d/main/install.sh | bash
+else
+	echo "k3d is already installed."
+fi
 
-# Disable GPG (fails in VM without enough entropy)
-kubectl patch deployment argocd-repo-server -n argocd --type='json' \
-  -p='[{"op":"add","path":"/spec/template/spec/containers/0/env","value":[{"name":"ARGOCD_GPG_ENABLED","value":"false"}]}]'
+ARCH=$(uname -m)
+case $ARCH in
+	x86_64) ARCH="amd64" ;;
+	aarch64|arm64) ARCH="arm64" ;;
+esac
 
-# Expose ArgoCD via the load balancer
-kubectl patch svc argocd-server -n argocd -p '{"spec": {"type": "LoadBalancer"}}'
+if ! check_if_package_exist "kubectl"; then
+	curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/${ARCH}/kubectl"
+	curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/${ARCH}/kubectl.sha256"
+	install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
+else
+	echo "kubectl is already installed."
+fi
 
-# Wait for all ArgoCD deployments to be available
-kubectl wait --for=condition=available deployment --all -n argocd --timeout=600s
-kubectl wait --for=condition=ready pod -l app.kubernetes.io/name=argocd-application-controller -n argocd --timeout=600s
+if ! check_if_package_exist "argocd"; then
+	curl -sSL -o argocd-linux-${ARCH} https://github.com/argoproj/argo-cd/releases/download/v3.4.2/argocd-linux-${ARCH}
+	sudo install -m 555 argocd-linux-${ARCH} /usr/local/bin/argocd
+	rm argocd-linux-${ARCH}
+else
+	echo "argocd already installed."
+fi
 
-# ── App ───────────────────────────────────────────────────────────────────────
-kubectl apply -f /vagrant/confs/argocd-app.yaml
+# From here we are going to initialize our cluster and the 2 required namespaces (argocd, dev)
+# and install argocd in its namespace.
 
-echo "ArgoCD admin password:"
-until kubectl -n argocd get secret argocd-initial-admin-secret &>/dev/null; do
-  sleep 2
-done
-kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d && echo
+# Cluster creation
+if [ -z "$1" ]; then
+	echo "First argument is missing (cluster name)."
+	exit 1
+else
+	k3d cluster create $1 -p "192.168.57.100:80:80@loadbalancer" --servers 1 --agents 1
+fi
+
+# argocd configuration
+if ! kubectl get namespace argocd > /dev/null 2>&1; then
+	kubectl create namespace argocd
+else
+	echo "(argocd) Namespace is already configured."
+fi
+
+if ! kubectl get namespace dev > /dev/null 2>&1; then
+	kubectl create namespace dev
+else
+	echo "(dev) Namespace is already configured."
+fi
+
+kubectl wait --for=condition=Ready nodes --all --timeout=120s
+kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/v3.4.2/manifests/install.yaml --server-side
+kubectl apply -f ./confs/argocd/ingress.yaml

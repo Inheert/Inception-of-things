@@ -1,0 +1,91 @@
+Hit:1 http://deb.debian.org/debian bookworm InRelease
+Hit:2 http://deb.debian.org/debian bookworm-updates InRelease
+Hit:3 https://download.docker.com/linux/debian bookworm InRelease
+Hit:4 http://security.debian.org/debian-security bookworm-security InRelease
+Hit:5 https://apt.releases.hashicorp.com bookworm InRelease
+Hit:6 https://download.virtualbox.org/virtualbox/debian bookworm InRelease
+Reading package lists... Done
+Helm v4.2.2 is already installed.
+(gitlab) Namespace is already configured.
+"gitlab" already exists with the same configuration, skipping
+"bitnami" has been added to your repositories
+Hang tight while we grab the latest from your chart repositories...
+...Successfully got an update from the "gitlab" chart repository
+...Successfully got an update from the "bitnami" chart repository
+Update Complete. ⎈Happy Helming!⎈
+Error: INSTALLATION FAILED: failed to perform "FetchReference" on source: Get "https://registry-1.docker.io/v2/bitnamicharts/redis/manifests/27.0.10": dial tcp: lookup registry-1.docker.io: i/o timeout
+NAME: postgresql
+LAST DEPLOYED: Fri Jun 19 17:18:18 2026
+NAMESPACE: gitlab
+STATUS: deployed
+REVISION: 1
+DESCRIPTION: Install complete
+TEST SUITE: None
+NOTES:
+CHART NAME: postgresql
+CHART VERSION: 18.7.6
+APP VERSION: 18.4.0
+
+⚠ WARNING: Since August 28th, 2025, only a limited subset of images/charts are available for free.
+    Subscribe to Bitnami Secure Images to receive continued support and security updates.
+    More info at https://bitnami.com and https://github.com/bitnami/containers/issues/83267
+
+** Please be patient while the chart is being deployed **
+
+PostgreSQL can be accessed via port 5432 on the following DNS names from within your cluster:
+
+    postgresql.gitlab.svc.cluster.local - Read/Write connection
+
+To get the password for "postgres" run:
+
+    export POSTGRES_PASSWORD=$(kubectl get secret --namespace gitlab postgresql -o jsonpath="{.data.postgres-password}" | base64 -d)
+
+To connect to your database run the following command:
+
+    kubectl run postgresql-client --rm --tty -i --restart='Never' --namespace gitlab --image registry-1.docker.io/bitnami/postgresql:latest --env="PGPASSWORD=$POSTGRES_PASSWORD" \
+      --command -- psql --host postgresql -U postgres -d postgres -p 5432
+
+    > NOTE: If you access the container using bash, make sure that you execute "/opt/bitnami/scripts/postgresql/entrypoint.sh /bin/bash" in order to avoid the error "psql: local user with ID 1001} does not exist"
+
+To connect to your database from outside the cluster execute the following commands:
+
+    kubectl port-forward --namespace gitlab svc/postgresql 5432:5432 &
+    PGPASSWORD="$POSTGRES_PASSWORD" psql --host 127.0.0.1 -U postgres -d postgres -p 5432
+
+WARNING: The configured password will be ignored on new installation in case when previous PostgreSQL release was deleted through the helm command. In that case, old PVC will have an old password, and setting it through helm won't take effect. Deleting persistent volumes (PVs) will solve the issue.
+WARNING: Rolling tag detected (bitnami/postgresql:latest), please note that it is strongly recommended to avoid using rolling tags in a production environment.
++info https://techdocs.broadcom.com/us/en/vmware-tanzu/bitnami-secure-images/bitnami-secure-images/services/bsi-doc/apps-tutorials-understand-rolling-tags-containers-index.html
+WARNING: Rolling tag detected (bitnami/os-shell:latest), please note that it is strongly recommended to avoid using rolling tags in a production environment.
++info https://techdocs.broadcom.com/us/en/vmware-tanzu/bitnami-secure-images/bitnami-secure-images/services/bsi-doc/apps-tutorials-understand-rolling-tags-containers-index.html
+
+WARNING: There are "resources" sections in the chart not set. Using "resourcesPreset" is not recommended for production. For production installations, please set the following values according to your workload needs:
+  - primary.resources
+  - readReplicas.resources
++info https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
+Error: INSTALLATION FAILED: execution error at (gitlab/templates/NOTES.txt:214:3):
+CONFIGURATION CHECKS:
+
+Backup Object Storage:
+  The chart provides no longer bundled object storage solution. Please
+  prepare an external object storage solution for backup and restore by following
+  https://docs.gitlab.com/charts/advanced/external-object-storage/#backups
+
+Object Storage:
+  When type-specific object storage is enabled the `connection` property can not be empty. Check the following object storage configuration(s): artifacts,lfs,uploads,packages
+
+redis:
+  You must configure an Redis connetion. Please set `global.redis.host`. Since chart v10.0.0,
+  external Redis became required. If you were using the bundled Redis chart refer to
+  https://docs.gitlab.com/charts/installation/migration/bundled_chart_migration/.
+
+postgresql:
+    You must configure an PostgreSQL connetion. Please set `global.psql.host`. Since chart v10.0.0,
+    external PostgreSQL became required. If you were using the bundled PostgreSQL chart refer to
+    https://docs.gitlab.com/charts/installation/migration/bundled_chart_migration/.
+
+postgresql:
+    You must configure an PostgreSQL connetion. Please set `global.psql.password.secret`. Since chart v10.0.0,
+    external PostgreSQL became required. If you were using the bundled PostgreSQL chart refer to
+    https://docs.gitlab.com/charts/installation/migration/bundled_chart_migration/.
+
+make: *** [Makefile:12: install] Error 1
