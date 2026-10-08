@@ -42,7 +42,7 @@ else
 fi
 
 if ! helm status gitlab -n gitlab > /dev/null 2>&1; then
-	helm install gitlab gitlab/gitlab -n gitlab --skip-crds -f ./confs/gitlab-values.yaml
+	helm install gitlab gitlab/gitlab -n gitlab --skip-crds -f ./confs/gitlab-values.yaml --version 10.1.0
 else
 	echo "(gitlab) Gitlab chart is already installed."
 fi
