@@ -4,6 +4,14 @@
 #ufw allow from 10.42.0.0/16 to any #pods
 #ufw allow from 10.43.0.0/16 to any #services
 
+# Without --flannel-iface, flannel binds to the default-route interface
+# (VirtualBox's NAT adapter), which is NOT shared between the VMs and breaks
+# cross-node pod traffic. Resolve the interface from the private IP instead
+# of hardcoding a device name (enp0s8/enp0s9/eth1...) that varies by box.
+iface_for_ip() {
+	ip -4 -o addr show | awk -v ip="$1" '$0 ~ "inet "ip"/" {print $2; exit}'
+}
+
 if [ "$1" = "hclaudeS" ]; then
 	echo "Installing K3s Server..."
 	#curl -sfL https://get.k3s.io | sh -s - server \
@@ -12,7 +20,8 @@ if [ "$1" = "hclaudeS" ]; then
 	#	--disable metrics-server
 
 	export K3S_KUBECONFIG_MODE="644"
-	export INSTALL_K3S_EXEC="server --node-ip=192.168.56.110 --flannel-iface=enp0s9"
+	NODE_IP="192.168.56.110"
+	export INSTALL_K3S_EXEC="server --node-ip=$NODE_IP --flannel-iface=$(iface_for_ip $NODE_IP)"
 
 	curl -sfL https://get.k3s.io | sh -
 	if [ $? -ne 0 ]; then
@@ -48,7 +57,8 @@ elif [ "$1" = "hclaudeSW" ]; then
 
 	export K3S_TOKEN_FILE=/vagrant/shared/token
 	export K3S_URL=https://192.168.56.110:6443
-	export INSTALL_K3S_EXEC="agent --node-ip=192.168.56.111 --flannel-iface=enp0s9"
+	NODE_IP="192.168.56.111"
+	export INSTALL_K3S_EXEC="agent --node-ip=$NODE_IP --flannel-iface=$(iface_for_ip $NODE_IP)"
 
 	curl -sfL https://get.k3s.io | sh -
 
