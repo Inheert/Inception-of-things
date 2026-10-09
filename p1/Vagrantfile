@@ -7,8 +7,8 @@ MACHINES =
 
 Vagrant.configure("2") do |config|
   # same for both nodes
-  config.vm.box = "koalephant/debian12"
-  #config.vm.box = "debian/bookworm64"
+  #config.vm.box = "koalephant/debian12"
+  config.vm.box = "debian/bookworm64"
   config.vm.synced_folder File.expand_path("confs", __dir__), "/vagrant"
 
   MACHINES.each do |name, ip|
